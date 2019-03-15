@@ -18,6 +18,7 @@ Original Author: Shay Gal-on
 #include "coremark.h"
 #include "core_portme.h"
 #include "encoding.h"
+#include "uart_16550.h"
 
 #if VALIDATION_RUN
 	volatile ee_s32 seed1_volatile=0x3415;
@@ -127,7 +128,9 @@ ee_u32 default_num_contexts=1;
 */
 void portable_init(core_portable *p, int *argc, char *argv[])
 {
-	#error "Call board initialization routines in portable init (if needed), in particular initialize UART!\n"
+	// Initialize UART 16550 on the VCU118.
+	uart0_init();
+
 	if (sizeof(ee_ptr_int) != sizeof(ee_u8 *)) {
 		ee_printf("ERROR! Please define ee_ptr_int to a type that holds a pointer!\n");
 	}
