@@ -20,6 +20,9 @@ Original Author: Shay Gal-on
 */
 #ifndef CORE_PORTME_H
 #define CORE_PORTME_H
+
+#include <stdint.h>
+
 /************************/
 /* Data types and settings */
 /************************/
@@ -97,8 +100,8 @@ typedef size_t ee_size_t;
 /* Configuration : CORE_TICKS
 	Define type of return from the timing functions.
  */
-#define CORETIMETYPE ee_u32 
-typedef ee_u32 CORE_TICKS;
+#define CORETIMETYPE uint64_t
+typedef uint64_t CORE_TICKS;
 
 /* Configuration : SEED_METHOD
 	Defines method to get seed values that cannot be computed at compile time.

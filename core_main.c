@@ -285,15 +285,15 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	total_errors+=check_data_types();
 	/* and report results */
 	ee_printf("CoreMark Size    : %lu\n", (long unsigned) results[0].size);
-	ee_printf("Total ticks      : %lu\n", (long unsigned) total_time);
+	ee_printf("Total ticks      : %llu\n", total_time);
 #if HAS_FLOAT
 	ee_printf("Total time (secs): %f\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
 		ee_printf("Iterations/Sec   : %f\n",default_num_contexts*results[0].iterations/time_in_secs(total_time));
 #else 
-	ee_printf("Total time (secs): %d\n",time_in_secs(total_time));
+	ee_printf("Total time (secs): %llu\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
-		ee_printf("Iterations/Sec   : %d\n",default_num_contexts*results[0].iterations/time_in_secs(total_time));
+		ee_printf("Iterations/Sec   : %llu\n",((secs_ret) default_num_contexts*results[0].iterations)/time_in_secs(total_time));
 #endif
 	if (time_in_secs(total_time) < 10) {
 		ee_printf("ERROR! Must execute for at least 10 secs for a valid result!\n");

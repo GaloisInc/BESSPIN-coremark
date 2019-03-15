@@ -17,6 +17,7 @@ Original Author: Shay Gal-on
 */
 #include "coremark.h"
 #include "core_portme.h"
+#include "encoding.h"
 
 #if VALIDATION_RUN
 	volatile ee_s32 seed1_volatile=0x3415;
@@ -41,7 +42,25 @@ Original Author: Shay Gal-on
 	Sample implementation for standard time.h and windows.h definitions included.
 */
 CORETIMETYPE barebones_clock() {
-	#error "You must implement a method to measure time in barebones_clock()! This function should return current time.\n"
+#if __riscv_xlen == 64
+	return read_csr(mcycle);
+#else
+	// On 32-bit platforms, we need to concatenate the 32-bit `mcycle` and `mcycleh` CSRs. However, we need to be careful
+	// and check that `mcycle` doesn't overflow and increment `mcycleh` after we have already read a stale value of
+	// `mcycleh`. This short loop will avoid that issue.
+	uint32_t cycle_lo, cycle_hi;
+	asm volatile (
+			"%=:\n\t"
+			"csrr %1, mcycleh\n\t"
+			"csrr %0, mcycle\n\t"
+			"csrr t1, mcycleh\n\t"
+			"bne  %1, t1, %=b"
+		: "=r" (cycle_lo), "=r" (cycle_hi)
+		: // No inputs.
+		: "t1"
+	);
+	return (((uint64_t) cycle_hi) << 32) | (uint64_t) cycle_lo;
+#endif
 }
 /* Define : TIMER_RES_DIVIDER
 	Divider to trade off timer resolution and total time that can be measured.

@@ -54,7 +54,7 @@ void *iterate(void *pres);
 #if HAS_FLOAT
 typedef double secs_ret;
 #else
-typedef ee_u32 secs_ret;
+typedef uint64_t secs_ret;
 #endif
 
 #if MAIN_HAS_NORETURN
