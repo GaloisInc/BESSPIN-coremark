@@ -21,22 +21,22 @@ Original Author: Shay Gal-on
 #include "uart_16550.h"
 
 #if VALIDATION_RUN
-	volatile ee_s32 seed1_volatile=0x3415;
-	volatile ee_s32 seed2_volatile=0x3415;
-	volatile ee_s32 seed3_volatile=0x66;
+	__attribute__((section(".data"))) volatile ee_s32 seed1_volatile=0x3415;
+	__attribute__((section(".data"))) volatile ee_s32 seed2_volatile=0x3415;
+	__attribute__((section(".data"))) volatile ee_s32 seed3_volatile=0x66;
 #endif
 #if PERFORMANCE_RUN
-	volatile ee_s32 seed1_volatile=0x0;
-	volatile ee_s32 seed2_volatile=0x0;
-	volatile ee_s32 seed3_volatile=0x66;
+	__attribute__((section(".data"))) volatile ee_s32 seed1_volatile=0x0;
+	__attribute__((section(".data"))) volatile ee_s32 seed2_volatile=0x0;
+	__attribute__((section(".data"))) volatile ee_s32 seed3_volatile=0x66;
 #endif
 #if PROFILE_RUN
-	volatile ee_s32 seed1_volatile=0x8;
-	volatile ee_s32 seed2_volatile=0x8;
-	volatile ee_s32 seed3_volatile=0x8;
+	__attribute__((section(".data"))) volatile ee_s32 seed1_volatile=0x8;
+	__attribute__((section(".data"))) volatile ee_s32 seed2_volatile=0x8;
+	__attribute__((section(".data"))) volatile ee_s32 seed3_volatile=0x8;
 #endif
-	volatile ee_s32 seed4_volatile=ITERATIONS;
-	volatile ee_s32 seed5_volatile=0;
+	__attribute__((section(".data"))) volatile ee_s32 seed4_volatile=ITERATIONS;
+	__attribute__((section(".data"))) volatile ee_s32 seed5_volatile=0;
 /* Porting : Timing functions
 	How to capture time and convert to seconds must be ported to whatever is supported by the platform.
 	e.g. Read value from on board RTC, read value from cpu clock cycles performance counter etc. 
