@@ -21,6 +21,7 @@ Original Author: Shay Gal-on
 #ifndef CORE_PORTME_H
 #define CORE_PORTME_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 /************************/
