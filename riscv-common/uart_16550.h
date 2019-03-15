@@ -3,7 +3,12 @@
 #define __UART_16550_H__
 
 #define UART_BASE (0x62300000ULL)
+// If a system clock rate is specified, use that for the UART clock rate. Otherwise default to a hardcoded value.
+#ifdef CLOCKS_PER_SEC
+#define UART_CLOCK_RATE CLOCKS_PER_SEC
+#else
 #define UART_CLOCK_RATE  (83000000ULL) // 83MHz
+#endif
 #define DEFAULT_BAUDRATE  (115200)
 
 
