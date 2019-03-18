@@ -16,6 +16,9 @@
 
 #File : core_portme.mak
 
+# Allow users to override the UART's baud rate.
+UART_BAUD_RATE ?= 115200
+
 COMMON_DIR := ./riscv-common
 LINKER_SCRIPT := $(COMMON_DIR)/test.ld
 
@@ -45,6 +48,7 @@ CC 		= riscv64-unknown-elf-gcc
 PORT_CFLAGS = \
 	$(RISCV_FLAGS) \
 	-DCLOCKS_PER_SEC=$(CLOCKS_PER_SEC) \
+	-DUART_BAUD_RATE=$(UART_BAUD_RATE) \
 	-O2 \
 	-mcmodel=medany \
 	-static \

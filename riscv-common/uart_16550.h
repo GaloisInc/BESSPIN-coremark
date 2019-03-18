@@ -9,7 +9,12 @@
 #else
 #define UART_CLOCK_RATE  (83000000ULL) // 83MHz
 #endif
+// If a baud rate is specified, use that for the UART's baud rate. Otherwise default to a hardcoded value.
+#ifdef UART_BAUD_RATE
+#define DEFAULT_BAUDRATE UART_BAUD_RATE
+#else
 #define DEFAULT_BAUDRATE  (115200)
+#endif
 
 
 enum __attribute__ ((__packed__)) ier_t
