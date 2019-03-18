@@ -47,7 +47,7 @@ static int skip_atoi(const char **s)
   return i;
 }
 
-static char *number(char *str, long num, int base, int size, int precision, int type)
+static char *number(char *str, long long num, int base, int size, int precision, int type)
 {
   char c, sign, tmp[66];
   char *dig = digits;
@@ -95,8 +95,8 @@ static char *number(char *str, long num, int base, int size, int precision, int 
   {
     while (num != 0)
     {
-      tmp[i++] = dig[((unsigned long) num) % (unsigned) base];
-      num = ((unsigned long) num) / (unsigned) base;
+      tmp[i++] = dig[((unsigned long long) num) % (unsigned long long) base];
+      num = ((unsigned long long) num) / (unsigned long long) base;
     }
   }
 
@@ -403,7 +403,7 @@ static char *flt(char *str, double num, int size, int precision, char fmt, int f
 static int ee_vsprintf(char *buf, const char *fmt, va_list args)
 {
   int len;
-  unsigned long num;
+  unsigned long long num;
   int i, base;
   char *str;
   char *s;
@@ -466,11 +466,13 @@ repeat:
     }
 
     // Get the conversion qualifier
-    qualifier = -1;
-    if (*fmt == 'l' || *fmt == 'L')
+    qualifier = 0;
+get_qualifier:
+    if (qualifier < 2 && (*fmt == 'l' || *fmt == 'L'))
     {
-      qualifier = *fmt;
+      qualifier++;
       fmt++;
+      goto get_qualifier;
     }
 
     // Default base
@@ -506,7 +508,7 @@ repeat:
         flags |= UPPERCASE;
 
       case 'a':
-        if (qualifier == 'l')
+        if (qualifier)
           str = eaddr(str, va_arg(args, unsigned char *), field_width, precision, flags);
         else
           str = iaddr(str, va_arg(args, unsigned char *), field_width, precision, flags);
@@ -548,7 +550,9 @@ repeat:
         continue;
     }
 
-    if (qualifier == 'l')
+    if (qualifier == 2)
+      num = va_arg(args, unsigned long long);
+    else if (qualifier == 1)
       num = va_arg(args, unsigned long);
     else if (flags & SIGN)
       num = va_arg(args, int);
