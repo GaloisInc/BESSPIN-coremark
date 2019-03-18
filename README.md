@@ -1,3 +1,88 @@
+# CoreMark for SSITH
+
+This repository is a fork of the [CoreMark](https://www.eembc.org/coremark/)
+benchmark ported for the SSITH project.
+Please use the `ssith` branch for all SSITH-related work.
+
+The following settings must be specified when compiling the CoreMark binary:
+
+* `PORT_DIR`: This should always be set to `riscv-bare-metal`.
+* `GFE_TARGET`: This can be set to `P1`, `P2`, or `P3`.
+
+The following settings can optionally be specified when compiling the CoreMark
+binary:
+
+* `ITERATIONS`: Controls how many times the CoreMark kernel runs.
+  This should be set so that CoreMark runs for at least 10 seconds.
+  For reference, the baseline Chisel P1 processor runs approximately 1600
+  iterations in 10 seconds, and the baseline Bluespec P1 processor runs
+  approximately 2000 iterations in 10 seconds.
+* `UART_BAUD_RATE`: Control the baud rate for the VCU118's UART.
+  CoreMark prints its results over the UART at the end of the test.
+  This defaults to 115200.
+
+Here is an example of compiling CoreMark for a P1 processor to run for 2000
+iterations:
+
+```
+make PORT_DIR=riscv-bare-metal GFE_TARGET=P1 ITERATIONS=2000
+```
+
+This will create the `coremark.bin` ELF.
+To run the benchmark, load this file onto your FPGA and execute it.
+Watch the UART output to see the benchmark's results.
+
+Here is an example output of CoreMark running on the Chisel P1 for 2000
+iterations:
+
+```
+2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 1051244164
+Total time (secs): 12.615435
+Iterations/Sec   : 158.535957
+Iterations       : 2000
+Compiler version : GCC8.2.0
+Compiler flags   : -march=rv32imac -mabi=ilp32 -DCLOCKS_PER_SEC=83330000 -O2 -mcmodel=medany -static -std=gnu99 -ffast-math -fno-common -fno-builtin-printf -I./riscv-common -DPERFORMANCE_RUN=1  -static -nostdlib -nostartfiles -lm -lgcc -T ./riscv-common/test.ld
+Memory location  : STACK
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x4983
+Correct operation validated. See README.md for run and reporting rules.
+CoreMark 1.0 : 158.535957 / GCC8.2.0 -march=rv32imac -mabi=ilp32 -DCLOCKS_PER_SEC=83330000 -O2 -mcmodel=medany -static -std=gnu99 -ffast-math -fno-common -fno-builtin-printf -I./riscv-common -DPERFORMANCE_RUN=1  -static -nostdlib -nostartfiles -lm -lgcc -T ./riscv-common/test.ld / STACK
+```
+
+Here is an example output of CoreMark running on the Bluespec P1 for 2000
+iterations:
+
+```
+2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total ticks      : 845889348
+Total time (secs): 10.151078
+Iterations/Sec   : 197.023405
+Iterations       : 2000
+Compiler version : GCC8.2.0
+Compiler flags   : -march=rv32imac -mabi=ilp32 -DCLOCKS_PER_SEC=83330000 -O2 -mcmodel=medany -static -std=gnu99 -ffast-math -fno-common -fno-builtin-printf -I./riscv-common -DPERFORMANCE_RUN=1  -static -nostdlib -nostartfiles -lm -lgcc -T ./riscv-common/test.ld
+Memory location  : STACK
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x4983
+Correct operation validated. See README.md for run and reporting rules.
+CoreMark 1.0 : 197.023405 / GCC8.2.0 -march=rv32imac -mabi=ilp32 -DCLOCKS_PER_SEC=83330000 -O2 -mcmodel=medany -static -std=gnu99 -ffast-math -fno-common -fno-builtin-printf -I./riscv-common -DPERFORMANCE_RUN=1  -static -nostdlib -nostartfiles -lm -lgcc -T ./riscv-common/test.ld / STACK
+```
+
+The CoreMark score for a processor is reported as
+CoreMark-iterations-per-second-per-core-MHz.
+For example, the Chisel P1 result above would score `158.5 / 83.33 = 1.90`, and
+the Bluespec P1 result above would score `197.0 / 83.33 = 2.36`.
+
+The remainder of this document contains the original README from the [official
+CoreMark repository](https://github.com/eembc/coremark).
 
 # Introduction
 
