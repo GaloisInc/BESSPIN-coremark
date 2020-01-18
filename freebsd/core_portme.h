@@ -57,6 +57,10 @@ Original Author: Shay Gal-on
 #define HAS_PRINTF 1
 #endif
 
+#ifndef __has_builtin
+#define __has_builtin(x)	0
+#endif
+
 /* Configuration: CORE_TICKS
 	Define type of return from the timing functions.
  */
@@ -100,10 +104,18 @@ typedef signed int ee_s32;
 typedef double ee_f32;
 typedef unsigned char ee_u8;
 typedef unsigned int ee_u32;
+#if __has_feature(capabilities)
+typedef __intcap_t ee_ptr_int;
+#else
 typedef unsigned long ee_ptr_int;
+#endif
 typedef size_t ee_size_t;
 /* align an offset to point to a 32b value */
+#if __has_builtin(__builtin_align_up)
+#define align_mem(x) __builtin_align_up((x), 32)
+#else
 #define align_mem(x) (void *)(4 + (((ee_ptr_int)(x) - 1) & ~3))
+#endif
 
 /* Configuration: SEED_METHOD
 	Defines method to get seed values that cannot be computed at compile time.
