@@ -112,7 +112,7 @@ typedef unsigned long ee_ptr_int;
 typedef size_t ee_size_t;
 /* align an offset to point to a 32b value */
 #if __has_builtin(__builtin_align_up)
-#define align_mem(x) __builtin_align_up((x), 32)
+#define align_mem(x) __builtin_align_up((x), 4)
 #else
 #define align_mem(x) (void *)(4 + (((ee_ptr_int)(x) - 1) & ~3))
 #endif
