@@ -25,12 +25,12 @@ NEWLIB_DIR ?=
 
 # Make sure user explicitly defines the target GFE platform.
 ifeq ($(GFE_TARGET),P1)
-	RISCV_FLAGS := -target riscv32-unknown-elf -march=rv32imacxcheri -mabi=il32pc64
+	RISCV_FLAGS := -target riscv32-unknown-elf -march=rv32imacxcheri -mabi=il32pc64 -DPOINTER_SPACE=8
 	COMPILER_RT := clang_rt.builtins-riscv32
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 50000000
 else ifeq ($(GFE_TARGET),P2)
-	RISCV_FLAGS := -target riscv64-unknown-elf -march=rv64imafdcxcheri -mabi=l64pc128d
+	RISCV_FLAGS := -target riscv64-unknown-elf -march=rv64imafdcxcheri -mabi=l64pc128d -DPOINTER_SPACE=16
 	COMPILER_RT := clang_rt.builtins-riscv64
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 50000000
