@@ -21,14 +21,17 @@ UART_BAUD_RATE ?= 115200
 
 COMMON_DIR := ./riscv-common
 LINKER_SCRIPT := $(COMMON_DIR)/test.ld
+NEWLIB_DIR ?=
 
 # Make sure user explicitly defines the target GFE platform.
 ifeq ($(GFE_TARGET),P1)
-	RISCV_FLAGS := -march=rv32imac -mabi=ilp32
+	RISCV_FLAGS := -target riscv32-unknown-elf -march=rv32imac -mabi=ilp32
+	COMPILER_RT := clang_rt.builtins-riscv32
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 50000000
 else ifeq ($(GFE_TARGET),P2)
-	RISCV_FLAGS := -march=rv64imafdc -mabi=lp64d
+	RISCV_FLAGS := -target riscv32-unknown-elf -march=rv64imafdc -mabi=lp64d
+	COMPILER_RT := clang_rt.builtins-riscv64
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 50000000
 else ifeq ($(GFE_TARGET),P3)
@@ -42,15 +45,16 @@ endif
 OUTFLAG= -o
 # Flag : CC
 #	Use this flag to define compiler to use
-CC 		= riscv64-unknown-elf-gcc
+CC 		= clang
 # Flag : CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 PORT_CFLAGS = \
 	$(RISCV_FLAGS) \
 	-DCLOCKS_PER_SEC=$(CLOCKS_PER_SEC) \
 	-DUART_BAUD_RATE=$(UART_BAUD_RATE) \
+	-mno-relax \
 	-O2 \
-	-mcmodel=medany \
+	-mcmodel=medium \
 	-static \
 	-std=gnu99 \
 	-ffast-math \
@@ -58,16 +62,16 @@ PORT_CFLAGS = \
 	-fno-builtin-printf \
 	-I$(COMMON_DIR)
 FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
-CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\" 
+CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
 #Flag : LFLAGS_END
-#	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts). 
+#	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts).
 #	Note : On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
 LFLAGS_END = \
 	-static \
 	-nostdlib \
 	-nostartfiles \
 	-lm \
-	-lgcc \
+	-l$(COMPILER_RT) \
 	-T $(LINKER_SCRIPT)
 # Flag : PORT_SRCS
 # 	Port specific source files can be added here

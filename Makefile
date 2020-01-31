@@ -54,7 +54,11 @@ ifdef REBUILD
 FORCE_REBUILD=force_rebuild
 endif
 
-CFLAGS += -DITERATIONS=$(ITERATIONS)
+ifndef SYSROOT_DIR
+$(error PLEASE define SYSROOT_DIR to where libc and run-time libs are installed)
+endif
+
+CFLAGS += -DITERATIONS=$(ITERATIONS) --sysroot=$(SYSROOT_DIR)
 
 CORE_FILES = core_list_join core_main core_matrix core_state core_util
 ORIG_SRCS = $(addsuffix .c,$(CORE_FILES))
