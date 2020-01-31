@@ -39,6 +39,14 @@ SECTIONS
     *(.sdata .sdata.* .gnu.linkonce.s.*)
   }
 
+  __cap_relocs : {
+     . = ALIGN(8);
+  }
+
+  .captable : {
+     . = ALIGN(8);
+  }
+
   /* bss segment */
   .sbss : {
     *(.sbss .sbss.* .gnu.linkonce.sb.*)
