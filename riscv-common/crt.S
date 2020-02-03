@@ -126,10 +126,6 @@ zero_regs:
 1:
 #endif
 
-  # initialize trap vector
-  la t0, trap_entry
-  csrw mtvec, t0
-
   # initialize global pointer
 .option push
 .option norelax
@@ -164,6 +160,14 @@ zero_regs:
   csetflags       ct0, ct0, t1
   cjalr           cra, ct0
 
+  # initialize trap vector
+  cspecialr ct0, pcc
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  la t1, trap_entry
+  csetoffset ct0, ct0, t1 # ct0 still has PCC
+  cspecialw mtcc, ct0
+
 .option capmode
   clgc ct0, _init
   li              t1, 1
@@ -175,6 +179,7 @@ zero_regs:
 .option nocapmode
   .align 2
 trap_entry:
+  ebreak
   addi sp, sp, -272
 
   SREG x1, 1*REGBYTES(sp)
