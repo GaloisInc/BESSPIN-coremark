@@ -7,137 +7,37 @@
 #include <limits.h>
 #include <sys/signal.h>
 #include "util.h"
+#include "uart_16550.h"
 
-#define SYS_write 64
+#include <cheri_init_globals.h>
 
-#undef strcmp
+int main(int, char * __capability * __capability);
 
-extern volatile uint64_t tohost;
-extern volatile uint64_t fromhost;
-
-static uintptr_t syscall(uintptr_t which, uint64_t arg0, uint64_t arg1, uint64_t arg2)
-{
-  volatile uint64_t magic_mem[8] __attribute__((aligned(64)));
-  magic_mem[0] = which;
-  magic_mem[1] = arg0;
-  magic_mem[2] = arg1;
-  magic_mem[3] = arg2;
-  __sync_synchronize();
-
-  tohost = (uintptr_t)magic_mem;
-  while (fromhost == 0)
-    ;
-  fromhost = 0;
-
-  __sync_synchronize();
-  return magic_mem[0];
-}
-
-#define NUM_COUNTERS 2
-static uintptr_t counters[NUM_COUNTERS];
-static char* counter_names[NUM_COUNTERS];
-
-void setStats(int enable)
-{
-  int i = 0;
-#define READ_CTR(name) do { \
-    while (i >= NUM_COUNTERS) ; \
-    uintptr_t csr = read_csr(name); \
-    if (!enable) { csr -= counters[i]; counter_names[i] = #name; } \
-    counters[i++] = csr; \
-  } while (0)
-
-  READ_CTR(mcycle);
-  READ_CTR(minstret);
-
-#undef READ_CTR
-}
-
-void __attribute__((noreturn)) tohost_exit(uintptr_t code)
-{
-  tohost = (code << 1) | 1;
-  while (1);
-}
-
-uintptr_t __attribute__((weak)) handle_trap(uintptr_t cause, uintptr_t epc, uintptr_t regs[32])
-{
-  tohost_exit(1337);
-}
-
-void exit(int code)
-{
-  tohost_exit(code);
-}
-
-void abort()
-{
-  exit(128 + SIGABRT);
-}
-
-void printstr(const char* s)
-{
-  syscall(SYS_write, 1, (uintptr_t)s, strlen(s));
-}
-
-void __attribute__((weak)) thread_entry(int cid, int nc)
-{
-  // multi-threaded programs override this function.
-  // for the case of single-threaded programs, only let core 0 proceed.
-  while (cid != 0);
-}
-
-int __attribute__((weak)) main(int argc, char** argv)
-{
-  // single-threaded programs override this function.
-  printstr("Implement main(), foo!\n");
-  return -1;
-}
-
-static void init_tls()
-{
-  register void* thread_pointer asm("tp");
-  extern char _tls_data;
-  extern __thread char _tdata_begin, _tdata_end, _tbss_end;
-  size_t tdata_size = &_tdata_end - &_tdata_begin;
-  memcpy(thread_pointer, &_tls_data, tdata_size);
-  size_t tbss_size = &_tbss_end - &_tdata_end;
-  memset(thread_pointer + tdata_size, 0, tbss_size);
+void
+_start_purecap(void) {
+  cheri_init_globals_3(__builtin_cheri_global_data_get(),
+      __builtin_cheri_program_counter_get(),
+      __builtin_cheri_global_data_get());
 }
 
 void _init(int cid, int nc)
 {
-  init_tls();
-  thread_entry(cid, nc);
-
   // only single-threaded programs should ever get here.
-  int ret = main(0, 0);
+  main(0, NULL);
 
-  char buf[NUM_COUNTERS * 32] __attribute__((aligned(64)));
-  char* pbuf = buf;
-  for (int i = 0; i < NUM_COUNTERS; i++)
-    if (counters[i])
-      pbuf += sprintf(pbuf, "%s = %d\n", counter_names[i], counters[i]);
-  if (pbuf != buf)
-    printstr(buf);
-
-  exit(ret);
+  while(1);
 }
 
 #undef putchar
 int putchar(int ch)
 {
-  static __thread char buf[64] __attribute__((aligned(64)));
-  static __thread int buflen = 0;
-
-  buf[buflen++] = ch;
-
-  if (ch == '\n' || buflen == sizeof(buf))
-  {
-    syscall(SYS_write, 1, (uintptr_t)buf, buflen);
-    buflen = 0;
-  }
-
+  uart0_txchar((int) ch);
   return 0;
+}
+
+void printstr(const char* s)
+{
+  while(uart0_txchar((int) *s));
 }
 
 void printhex(uint64_t x)
@@ -317,7 +217,7 @@ static void vprintfmt(void (*putch)(int, void**), void **putdat, const char *fmt
 
     // pointer
     case 'p':
-      static_assert(sizeof(long) == sizeof(void*));
+      //static_assert(sizeof(long) == sizeof(void*));
       lflag = 1;
       putch('0', putdat);
       putch('x', putdat);
