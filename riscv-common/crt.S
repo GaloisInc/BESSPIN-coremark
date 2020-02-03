@@ -12,9 +12,29 @@
 # define REGBYTES 4
 #endif
 
+.option nocapmode
+
   .section ".text.init"
   .globl _start
 _start:
+  li t6, 0x1800
+  csrw mstatus, t6
+  # W^X for PCC and DDC
+  cspecialrw      ct0, ddc, cnull
+  li              t1, (1<<1)
+  not             t1, t1
+  candperm        ct0, ct0, t1
+  cspecialrw      cnull, ddc, ct0
+
+  cspecialrw      ct0, pcc, cnull
+  li              t1, ((1<<3) | (1<<5))
+  not             t1, t1
+  candperm        ct0, ct0, t1
+  la              t2, zero_regs
+  csetoffset      ct0, ct0, t2
+  cjr             ct0
+
+zero_regs:
   li  x1, 0
   li  x2, 0
   li  x3, 0
@@ -131,10 +151,28 @@ _start:
   add tp, tp, a2
   add sp, a0, 1
   sll sp, sp, STKSHIFT
-  add sp, sp, tp
 
-  j _init
+  cfromptr    csp, ddc, sp # Get DDC
+  csetbounds  csp, csp, tp
+  cincoffset  csp, csp, tp
 
+  # Initialise the captable.
+  cspecialrw      ct0, pcc, cnull # Get PCC
+  la              t1, _start_purecap
+  csetoffset      ct0, ct0, t1
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  cjalr           cra, ct0
+
+.option capmode
+  clgc ct0, _init
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  cjr  ct0
+
+# Not expected to trap handle here, but it is useful for debugging
+# No need to CHERIfym ebreak should be fine
+.option nocapmode
   .align 2
 trap_entry:
   addi sp, sp, -272
@@ -174,7 +212,7 @@ trap_entry:
   csrr a0, mcause
   csrr a1, mepc
   mv a2, sp
-  jal handle_trap
+  ebreak
   csrw mepc, a0
 
   # Remain in M-mode after eret
