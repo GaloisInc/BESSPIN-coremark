@@ -60,6 +60,9 @@ Original Author: Shay Gal-on
 #define HAS_PRINTF 0
 #endif
 
+#ifndef __has_builtin
+#define __has_builtin(x)  0
+#endif
 
 /* Definitions : COMPILER_VERSION, COMPILER_FLAGS, MEM_LOCATION
 	Initialize these strings per platform
@@ -90,12 +93,20 @@ typedef signed int ee_s32;
 typedef double ee_f32;
 typedef unsigned char ee_u8;
 typedef unsigned int ee_u32;
+#if __has_feature(capabilities)
+typedef __intcap_t ee_ptr_int;
+#else
 typedef unsigned long ee_ptr_int;
+#endif
 typedef size_t ee_size_t;
 /* align_mem :
 	This macro is used to align an offset to point to a 32b value. It is used in the Matrix algorithm to initialize the input memory blocks.
 */
+#if __has_builtin(__builtin_align_up)
+#define align_mem(x) __builtin_align_up((x), 4)
+#else
 #define align_mem(x) (void *)(4 + (((ee_ptr_int)(x) - 1) & ~3))
+#endif
 
 /* Configuration : CORE_TICKS
 	Define type of return from the timing functions.
