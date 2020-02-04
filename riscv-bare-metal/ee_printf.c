@@ -573,7 +573,7 @@ void uart_send_char(char c) {
 
 int ee_printf(const char *fmt, ...)
 {
-  char buf[256],*p;
+  char buf[4096],*p;
   va_list args;
   int n=0;
 
