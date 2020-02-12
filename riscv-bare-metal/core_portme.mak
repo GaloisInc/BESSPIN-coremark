@@ -58,7 +58,14 @@ endif
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 100000000
 else ifeq ($(GFE_TARGET),P3)
-$(error P3 target has not been tested yet, use P1 or P2)
+ifeq ($(TOOLCHAIN),LLVM)
+	RISCV_FLAGS += -target riscv64-unknown-elf -march=rv64imafdc -mabi=lp64d
+	LIBS += -lclang_rt.builtins-riscv64
+else
+	RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
+endif
+	# 25 MHz clock
+	CLOCKS_PER_SEC := 25000000
 else
 $(error Please define GFE_TARGET to P1, P2, or P3 (e.g. make GFE_TARGET=P1))
 endif
