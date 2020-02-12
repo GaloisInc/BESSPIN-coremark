@@ -1,6 +1,9 @@
 
 #include <stdint.h>
 #include "uart_16550.h"
+#if __CHERI__
+#include <cheric.h>
+#endif
 
 
 /* Struct for 16550 register space */
@@ -55,6 +58,11 @@ int uart0_init(void)
 {
   uint32_t divisor;
   divisor = UART_CLOCK_RATE / (16 * DEFAULT_BAUDRATE);
+
+#if __CHERI__
+  pio = cheri_setoffset(__builtin_cheri_global_data_get(), (size_t) pio);
+  pio = cheri_csetbounds((void *) pio, sizeof(struct uart_pio));
+#endif
 
   /* Disable all interrupts */
   pio->ier = 0x01;//0; // Enable "REceived data available interrupt"

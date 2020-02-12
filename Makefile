@@ -47,7 +47,7 @@ vpath %.h $(PORT_DIR)
 vpath %.mak $(PORT_DIR)
 include $(PORT_DIR)/core_portme.mak
 
-ifndef $(ITERATIONS)
+ifndef ITERATIONS
 ITERATIONS=0
 endif
 ifdef REBUILD
@@ -67,6 +67,10 @@ OUTCMD = $(OUTFLAG) $(OUTFILE) $(LFLAGS_END)
 
 HEADERS = coremark.h 
 CHECK_FILES = $(ORIG_SRCS) $(HEADERS)
+
+ifdef POINTER_SPACE
+CFLAGS+=  -DPOINTER_SPACE=$(POINTER_SPACE)
+endif
 
 $(OPATH):
 	$(MKDIR) $(OPATH)

@@ -25,13 +25,28 @@ SECTIONS
   . = 0xC0000000;
   .text.init : { *(.text.init) }
 
-  . = ALIGN(0x1000);
-  .tohost : { *(.tohost) }
-
   .text : { *(.text) }
 
   /* data segment */
   .data : { *(.data) }
+
+  __cap_relocs : {
+     . = ALIGN(8);
+  }
+
+  .captable : {
+     . = ALIGN(8);
+  }
+
+  /* thread-local data segment */
+  .tdata :
+  {
+    . = ALIGN(8);
+    _tls_data = .;
+    *(.tdata.begin)
+    *(.tdata)
+    *(.tdata.end)
+  }
 
   .sdata : {
     __global_pointer$ = . + 0x800;
@@ -45,22 +60,13 @@ SECTIONS
     *(.scommon)
   }
   .bss : { *(.bss) }
-
-  /* thread-local data segment */
-  .tdata :
-  {
-    _tls_data = .;
-    *(.tdata.begin)
-    *(.tdata)
-    *(.tdata.end)
-  }
   .tbss :
   {
     *(.tbss)
     *(.tbss.end)
+    _end = .;
   }
 
   /* End of uninitalized data segement */
-  _end = .;
 }
 

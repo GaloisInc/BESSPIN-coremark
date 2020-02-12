@@ -15,6 +15,27 @@
   .section ".text.init"
   .globl _start
 _start:
+#if __CHERI__
+.option nocapmode
+  li t6, 0x1800
+  csrw mstatus, t6
+  # W^X for PCC and DDC
+  cspecialrw      ct0, ddc, cnull
+  li              t1, (1<<1)
+  not             t1, t1
+  candperm        ct0, ct0, t1
+  cspecialrw      cnull, ddc, ct0
+
+  cspecialrw      ct0, pcc, cnull
+  li              t1, ((1<<3) | (1<<5))
+  not             t1, t1
+  candperm        ct0, ct0, t1
+  la              t2, zero_regs
+  csetoffset      ct0, ct0, t2
+  cjr             ct0
+#endif
+
+zero_regs:
   li  x1, 0
   li  x2, 0
   li  x3, 0
@@ -59,10 +80,6 @@ _start:
 #else
   bltz t0, 1f
 #endif
-2:
-  li a0, 1
-  sw a0, tohost, t0
-  j 2b
 1:
 
 #ifdef __riscv_flen
@@ -106,7 +123,7 @@ _start:
 1:
 #endif
 
-  # initialize trap vector
+  # initialize trap vector$
   la t0, trap_entry
   csrw mtvec, t0
 
@@ -131,12 +148,51 @@ _start:
   add tp, tp, a2
   add sp, a0, 1
   sll sp, sp, STKSHIFT
+
+#if __CHERI__
+  cfromptr    csp, ddc, sp # Get DDC
+  csetbounds  csp, csp, tp
+  cincoffset  csp, csp, tp
+
+  # Initialise the captable.
+  cspecialrw      ct0, pcc, cnull # Get PCC
+  la              t1, _start_purecap
+  csetoffset      ct0, ct0, t1
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  cjalr           cra, ct0
+
+  # initialize trap vector
+  cspecialr ct0, pcc
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  la t1, trap_entry
+  csetoffset ct0, ct0, t1 # ct0 still has PCC
+  cspecialw mtcc, ct0
+
+.option capmode
+  clgc ct0, _init
+  li              t1, 1
+  csetflags       ct0, ct0, t1
+  cjr  ct0
+.option nocapmode
+#else
   add sp, sp, tp
-
   j _init
+#endif
 
+# Not expected to trap handle here, but it is useful for debugging
+# No need to CHERIfym ebreak should be fine
   .align 2
 trap_entry:
+#if __CHERI__
+.option capmode
+  csrr a0, mcause
+  csrr a1, mepc
+  clgc ct0, handle_trap
+  cjr  ct0
+.option nocapmode
+#endif
   addi sp, sp, -272
 
   SREG x1, 1*REGBYTES(sp)
@@ -227,11 +283,3 @@ _tdata_end:
 .section ".tbss.end"
 .globl _tbss_end
 _tbss_end:
-
-.section ".tohost","aw",@progbits
-.align 6
-.globl tohost
-tohost: .dword 0
-.align 6
-.globl fromhost
-fromhost: .dword 0
