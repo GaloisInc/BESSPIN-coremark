@@ -22,13 +22,39 @@ UART_BAUD_RATE ?= 115200
 COMMON_DIR := ./riscv-common
 LINKER_SCRIPT := $(COMMON_DIR)/test.ld
 
+ifeq ($(TOOLCHAIN),LLVM)
+CC      := clang
+OBJDUMP := llvm-objdump
+OBJCOPY := llvm-objcopy
+RISCV_FLAGS += -mcmodel=medium -mno-relax --sysroot=$(SYSROOT_DIR)
+ifndef SYSROOT_DIR
+$(error PLEASE define SYSROOT_DIR to where libc and run-time libs are installed)
+endif
+else # GCC
+CC      := riscv64-unknown-elf-gcc
+OBJDUMP := riscv64-unknown-elf-objdump
+OBJCOPY := riscv64-unknown-elf-objcopy
+RISCV_FLAGS += -mcmodel=medany
+LIBS := -lgcc
+endif
+
 # Make sure user explicitly defines the target GFE platform.
 ifeq ($(GFE_TARGET),P1)
-	RISCV_FLAGS := -march=rv32imac -mabi=ilp32
+ifeq ($(TOOLCHAIN),LLVM)
+	RISCV_FLAGS += -target riscv32-unknown-elf -march=rv32imac -mabi=ilp32
+	LIBS += -lclang_rt.builtins-riscv32
+else
+	RISCV_FLAGS += -march=rv32imac -mabi=ilp32
+endif
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 50000000
 else ifeq ($(GFE_TARGET),P2)
-	RISCV_FLAGS := -march=rv64imafdc -mabi=lp64d
+ifeq ($(TOOLCHAIN),LLVM)
+	RISCV_FLAGS += -target riscv64-unknown-elf -march=rv64imafdc -mabi=lp64d
+	LIBS += -lclang_rt.builtins-riscv64
+else
+	RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
+endif
 	# 50 MHz clock
 	CLOCKS_PER_SEC := 100000000
 else ifeq ($(GFE_TARGET),P3)
@@ -40,9 +66,6 @@ endif
 # Flag : OUTFLAG
 #	Use this flag to define how to to get an executable (e.g -o)
 OUTFLAG= -o
-# Flag : CC
-#	Use this flag to define compiler to use
-CC 		= riscv64-unknown-elf-gcc
 # Flag : CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 PORT_CFLAGS = \
@@ -50,7 +73,6 @@ PORT_CFLAGS = \
 	-DCLOCKS_PER_SEC=$(CLOCKS_PER_SEC) \
 	-DUART_BAUD_RATE=$(UART_BAUD_RATE) \
 	-O2 \
-	-mcmodel=medany \
 	-static \
 	-std=gnu99 \
 	-ffast-math \
@@ -67,7 +89,7 @@ LFLAGS_END = \
 	-nostdlib \
 	-nostartfiles \
 	-lm \
-	-lgcc \
+	$(LIBS) \
 	-T $(LINKER_SCRIPT)
 # Flag : PORT_SRCS
 # 	Port specific source files can be added here
