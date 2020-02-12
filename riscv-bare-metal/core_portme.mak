@@ -67,8 +67,13 @@ endif
 else
   RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
 endif
-  # 50 MHz clock
-  CLOCKS_PER_SEC := 10000000
+ifeq ($(CHERI),1)
+  # 50 MHz clock on the current P2 CHERI GFE
+  CLOCKS_PER_SEC := 50000000
+else
+  # 100 MHz clock
+  CLOCKS_PER_SEC := 100000000
+endif
 else ifeq ($(GFE_TARGET),P3)
 $(error P3 target has not been tested yet, use P1 or P2)
 else
