@@ -76,10 +76,14 @@ else
 endif
 else ifeq ($(GFE_TARGET),P3)
 ifeq ($(TOOLCHAIN),LLVM)
-	RISCV_FLAGS += -target riscv64-unknown-elf -march=rv64imafdc -mabi=lp64d
-	LIBS += -lclang_rt.builtins-riscv64
+ifeq ($(CHERI),1)
+  RISCV_FLAGS += -target riscv64-unknown-elf -march=rv64imafdcxcheri -mabi=l64pc128d
 else
-	RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
+  RISCV_FLAGS += -target riscv64-unknown-elf -march=rv64imafdc -mabi=lp64d
+endif
+  LIBS += -lclang_rt.builtins-riscv64
+else
+  RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
 endif
 	# 25 MHz clock
 	CLOCKS_PER_SEC := 25000000
