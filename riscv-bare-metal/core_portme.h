@@ -97,7 +97,7 @@ typedef signed int ee_s32;
 typedef double ee_f32;
 typedef unsigned char ee_u8;
 typedef unsigned int ee_u32;
-#if __has_feature(capabilities)
+#if __CHERI__
 typedef __intcap_t ee_ptr_int;
 #else
 typedef unsigned long ee_ptr_int;

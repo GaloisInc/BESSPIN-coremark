@@ -41,7 +41,7 @@ SECTIONS
   /* thread-local data segment */
   .tdata :
   {
-    ALIGN(8);
+    . = ALIGN(8);
     _tls_data = .;
     *(.tdata.begin)
     *(.tdata)
