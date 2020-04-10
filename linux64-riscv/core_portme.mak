@@ -61,7 +61,7 @@ EXE = .elf
 # In this case, you also need to define below how to create an object file, and how to link.
 ifdef SEPARATE_COMPILE
 
-LD		= riscv64-unknown-linux-gnu-gcc
+LD		= riscv64-unknown-linux-gnu-ld
 OBJOUT 	= -o
 LFLAGS 	=
 OFLAG 	= -o
