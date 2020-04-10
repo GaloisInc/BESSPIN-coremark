@@ -54,14 +54,14 @@ LOAD = echo Loading done
 RUN = 
 
 OEXT = .o
-EXE = .exe
+EXE = .elf
 
 # Flag: SEPARATE_COMPILE
 # Define if you need to separate compilation from link stage. 
 # In this case, you also need to define below how to create an object file, and how to link.
 ifdef SEPARATE_COMPILE
 
-LD		= riscv64-unknown-linux-gnu-ld
+LD		= riscv64-unknown-linux-gnu-gcc
 OBJOUT 	= -o
 LFLAGS 	=
 OFLAG 	= -o
