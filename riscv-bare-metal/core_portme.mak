@@ -125,12 +125,15 @@ CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
 #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts). 
 #	Note : On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
 LFLAGS_END = \
+	-fuse-ld=lld \
+	-v \
 	-static \
 	-nostdlib \
 	-nostartfiles \
 	-lm \
 	$(LIBS) \
 	-T $(LINKER_SCRIPT)
+
 # Flag : PORT_SRCS
 # 	Port specific source files can be added here
 #	You may also need cvt.c if the fcvt functions are not provided as intrinsics by your compiler!
