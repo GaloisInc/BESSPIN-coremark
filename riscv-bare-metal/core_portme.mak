@@ -30,6 +30,7 @@ ifeq ($(TOOLCHAIN),LLVM)
 CC      := clang
 OBJDUMP := llvm-objdump
 OBJCOPY := llvm-objcopy
+TOOLCHAIN_LINKER_FLAGS := -fuse-ld=lld
 ifeq ($(GFE_TARGET),P1)
 SYSROOT_DIR=/opt/riscv-llvm/riscv32-unknown-elf/
 else
@@ -45,6 +46,7 @@ else # GCC
 CC      := riscv64-unknown-elf-gcc
 OBJDUMP := riscv64-unknown-elf-objdump
 OBJCOPY := riscv64-unknown-elf-objcopy
+TOOLCHAIN_LINKER_FLAGS =
 RISCV_FLAGS += -mcmodel=medany
 LIBS := -lgcc
 endif
@@ -125,14 +127,14 @@ CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
 #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts). 
 #	Note : On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
 LFLAGS_END = \
-	-fuse-ld=lld \
 	-v \
 	-static \
 	-nostdlib \
 	-nostartfiles \
 	-lm \
 	$(LIBS) \
-	-T $(LINKER_SCRIPT)
+	-T $(LINKER_SCRIPT) \
+	$(TOOLCHAIN_LINKER_FLAGS)
 
 # Flag : PORT_SRCS
 # 	Port specific source files can be added here
