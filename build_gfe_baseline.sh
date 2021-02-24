@@ -4,9 +4,9 @@ ITERATIONS=10000
 
 function build() {
     echo "Building $PORT_DIR for $GFE_TARGET with $ITERATIONS iterations"
-    #make PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS clean
-    #make PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS compile
-    #mv coremark.elf binaries/coremark_$GFE_TARGET_$PORT_DIR.elf
+    make PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS clean
+    make PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS compile
+    cp core_main.c binaries/coremark_$GFE_TARGET-$PORT_DIR.elf
 }
 
 # Build for P1 bare-metal
