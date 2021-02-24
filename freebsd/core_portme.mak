@@ -21,7 +21,7 @@
 OUTFLAG= -o
 # Flag: CC
 #	Use this flag to define compiler to use
-CC?= cc
+CC?= riscv64-unknown-freebsd12.1-gcc
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
 PORT_CFLAGS = -O2
@@ -54,7 +54,7 @@ LOAD = echo Loading done
 RUN = 
 
 OEXT = .o
-EXE = .exe
+EXE = .elf
 
 # Flag: SEPARATE_COMPILE
 # Define if you need to separate compilation from link stage. 

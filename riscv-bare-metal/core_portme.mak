@@ -157,7 +157,7 @@ LOAD = echo "Please set LOAD to the process of loading the executable to the fla
 RUN = echo "Please set RUN to the process of running the executable (e.g. via jtag, or board reset)"
 
 OEXT = .o
-EXE = .bin
+EXE = .elf
 
 # Target : port_pre% and port_post%
 # For the purpose of this simple port, no pre or post steps needed.
