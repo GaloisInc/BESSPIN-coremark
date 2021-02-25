@@ -68,7 +68,7 @@ else
 endif
 	LIBS += -lc -lclang_rt.builtins-riscv64
 else
-	RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
+	RISCV_FLAGS += -march=rv64imac -mabi=lp64
 endif
 ifeq ($(CHERI),1)
 # 50 MHz clock on the current P2 CHERI GFE
@@ -88,7 +88,7 @@ else
 endif
   LIBS += -lc -lclang_rt.builtins-riscv64
 else
-  RISCV_FLAGS += -march=rv64imafdc -mabi=lp64d
+  RISCV_FLAGS += -march=rv64imac -mabi=lp64
 endif
 # 25 MHz clock
 CLOCKS_PER_SEC := 25000000

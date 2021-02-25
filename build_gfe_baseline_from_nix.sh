@@ -9,7 +9,12 @@ function build() {
     echo "Building $PORT_DIR for $GFE_TARGET with $ITERATIONS iterations"
     make SYSROOT_DIR=$SYSROOT_DIR TOOLCHAIN=$TOOLCHAIN PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS POINTER_SPACE=16 clean
     make SYSROOT_DIR=$SYSROOT_DIR TOOLCHAIN=$TOOLCHAIN PORT_DIR=$PORT_DIR GFE_TARGET=$GFE_TARGET ITERATIONS=$ITERATIONS POINTER_SPACE=16 compile
-    cp coremark.elf binaries/coremark_$GFE_TARGET-$PORT_DIR-$TOOLCHAIN.elf
+    if [ $? -eq 0 ]; then
+        cp coremark.elf binaries/coremark_$GFE_TARGET-$PORT_DIR-$TOOLCHAIN.elf
+    else
+        echo "Building $PORT_DIR for $GFE_TARGET with $ITERATIONS iterations failed!"
+        exit
+    fi
 }
 
 for TOOLCHAIN in GCC LLVM
