@@ -31,17 +31,10 @@ CC      := clang
 OBJDUMP := llvm-objdump
 OBJCOPY := llvm-objcopy
 TOOLCHAIN_LINKER_FLAGS := -fuse-ld=lld
-ifeq ($(GFE_TARGET),P1)
-SYSROOT_DIR?=/opt/riscv-llvm/riscv32-unknown-elf/
-else
-SYSROOT_DIR?=/opt/riscv-llvm/riscv64-unknown-elf/
-endif # sysroot set
-
-
-RISCV_FLAGS += -mcmodel=medium -mno-relax --sysroot=$(SYSROOT_DIR)
 ifndef SYSROOT_DIR
 $(error PLEASE define SYSROOT_DIR to where libc and run-time libs are installed)
 endif
+RISCV_FLAGS += -mcmodel=medium -mno-relax --sysroot=$(SYSROOT_DIR)
 else # GCC
 CC      := riscv64-unknown-elf-gcc
 OBJDUMP := riscv64-unknown-elf-objdump
