@@ -16,21 +16,46 @@
 
 #File: core_portme.mak
 
+ifeq ($(CHERI),1)
+TOOLCHAIN:=LLVM
+endif
+
+ifeq ($(TOOLCHAIN),LLVM)
+CC      := clang
+ifndef SYSROOT_DIR
+$(error PLEASE define SYSROOT_DIR to where libc and run-time libs are installed)
+endif
+ifeq ($(CHERI),1)
+  RISCV_FLAGS += -target riscv64-unknown-freebsd \
+				-mcmodel=medium -mno-relax \
+				--sysroot=$(SYSROOT_DIR) \
+				-march=rv64gcxcheri \
+				-mabi=l64pc128d -fuse-ld=lld
+else
+  RISCV_FLAGS += -target riscv64-unknown-freebsd \
+				-mcmodel=medium -mno-relax \
+				--sysroot=$(SYSROOT_DIR) \
+				-march=rv64gc \
+				-mabi=lp64d -fuse-ld=lld
+endif
+else # GCC
+CC      := riscv64-unknown-freebsd12.1-gcc
+endif
+
 # Flag: OUTFLAG
 #	Use this flag to define how to to get an executable (e.g -o)
 OUTFLAG= -o
-# Flag: CC
-#	Use this flag to define compiler to use
-CC = riscv64-unknown-freebsd12.1-gcc
+
 # Flag: CFLAGS
 #	Use this flag to define compiler options. Note, you can add compiler options from the command line using XCFLAGS="other flags"
-PORT_CFLAGS = -O2
+PORT_CFLAGS = -O2 $(RISCV_FLAGS)
 FLAGS_STR = "$(PORT_CFLAGS) $(XCFLAGS) $(XLFLAGS) $(LFLAGS_END)"
 CFLAGS = $(PORT_CFLAGS) -I$(PORT_DIR) -I. -DFLAGS_STR=\"$(FLAGS_STR)\"
+
 #Flag: LFLAGS_END
 #	Define any libraries needed for linking or other flags that should come at the end of the link line (e.g. linker scripts). 
 #	Note: On certain platforms, the default clock_gettime implementation is supported but requires linking of librt.
-LFLAGS_END += -lrt
+#LFLAGS_END += -lrt
 # Flag: PORT_SRCS
 # Port specific source files can be added here
 PORT_SRCS = $(PORT_DIR)/core_portme.c
@@ -61,7 +86,7 @@ EXE = .elf
 # In this case, you also need to define below how to create an object file, and how to link.
 ifdef SEPARATE_COMPILE
 
-LD		= gcc
+LD		= $(CC)
 OBJOUT 	= -o
 LFLAGS 	=
 OFLAG 	= -o

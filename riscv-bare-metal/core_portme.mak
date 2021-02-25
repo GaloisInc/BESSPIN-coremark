@@ -32,9 +32,9 @@ OBJDUMP := llvm-objdump
 OBJCOPY := llvm-objcopy
 TOOLCHAIN_LINKER_FLAGS := -fuse-ld=lld
 ifeq ($(GFE_TARGET),P1)
-SYSROOT_DIR=/opt/riscv-llvm/riscv32-unknown-elf/
+SYSROOT_DIR?=/opt/riscv-llvm/riscv32-unknown-elf/
 else
-SYSROOT_DIR=/opt/riscv-llvm/riscv64-unknown-elf/
+SYSROOT_DIR?=/opt/riscv-llvm/riscv64-unknown-elf/
 endif # sysroot set
 
 
@@ -69,7 +69,7 @@ endif
 else ifeq ($(GFE_TARGET),P2)
 ifeq ($(TOOLCHAIN),LLVM)
 ifeq ($(CHERI),1)
-	RISCV_FLAGS += -target riscv64 -march=rv64imafdcxcheri -mabi=l64pc128d
+	RISCV_FLAGS += -target riscv64 -march=rv64rv64gcxcheri -mabi=l64pc128d
 else
 	RISCV_FLAGS += -target riscv64 -march=rv64imac -mabi=lp64
 endif
