@@ -1,8 +1,7 @@
-# CoreMark for SSITH
+# CoreMark for BESSPIN
 
 This repository is a fork of the [CoreMark](https://www.eembc.org/coremark/)
-benchmark ported for the SSITH project.
-Please use the `ssith` branch for all SSITH-related work.
+benchmark ported for the BESSPIN project.
 
 The following settings must be specified when compiling the CoreMark binary:
 
